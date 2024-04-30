@@ -28,6 +28,12 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# iOS
+ios/
+
+# android
+android/
+
 # local env files
 .env*.local
 
