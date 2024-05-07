@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font';
 import { AppBar } from '@components';
 import { Colors } from '@values';
 import { Card, Button } from '@components';
+import LogoAlt from 'src/components/svg/LogoAlt';
 
 const data = [ // TODO: Finalize data structure then replace
   { 
@@ -24,10 +25,14 @@ export default function YourLockers() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <AppBar />
-      {/* <View style={styles.containerAlt}>
-        <Text style={[styles.title, { alignSelf: 'center', marginTop: 136 }]}>Uh Oh!</Text>
-      </View> */}
-      <View style={styles.container}>
+      <View style={styles.containerAlt}>
+        <Text style={[styles.title, { marginBottom: 138}]}>Your Lockers (0)</Text>
+        <LogoAlt style={{ alignSelf: 'center', marginBottom: 16 }} />
+        <Text style={styles.text}>You Haven't Booked Any Locker Yet!</Text>
+        <Button title="Book Locker" style={{ alignSelf: 'center', marginBottom: 24 }}/> 
+      </View>
+
+      {/* <View style={styles.container}>
         <Text style={styles.title}>Your Lockers</Text>
         <FlatList
           data={data}
@@ -36,7 +41,7 @@ export default function YourLockers() {
           )}
         />
       </View>
-      <Button title="Book Locker" style={{ alignSelf: 'center', marginBottom: 24 }}/>
+      <Button title="Book Locker" style={{ alignSelf: 'center', marginBottom: 24 }}/> */}
     </SafeAreaView>
   );
 }
@@ -60,5 +65,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: 'Poppins-Bold',
     marginBottom: 22,
+  },
+  text: {
+    color: Colors.grayDarker,
+    fontSize: 20,
+    fontFamily: 'Poppins-Regular',
+    width: '60%',
+    alignSelf: 'center',
+    textAlign: 'center',
+    marginBottom: 38,
   }
 });
