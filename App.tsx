@@ -1,12 +1,13 @@
 import { StyleSheet, SafeAreaView } from 'react-native';
-import { LogInScreen, SignUpScreen, YourLockers } from '@screens';
+import { LogInScreen, SignUpScreen, YourLockers, PinScreen } from '@screens';
 
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       {/* <LogInScreen /> */}
       {/* <SignUpScreen /> */}
-      <YourLockers />
+      {/* <YourLockers /> */}
+      <PinScreen />
     </SafeAreaView>
   );
 }
