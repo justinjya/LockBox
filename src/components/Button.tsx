@@ -8,6 +8,7 @@ interface ButtonProps {
   onPress?: () => void;
   style?: object;
   textStyle?: object;
+  disabled?: Boolean;
   children?: React.ReactNode;
 }
 

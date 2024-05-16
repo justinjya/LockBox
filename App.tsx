@@ -5,7 +5,8 @@ import {
   YourLockersScreen, 
   PinScreen,
   BookScreen,
-  PaymentScreen
+  PaymentScreen,
+  ProfileScreen,
 } from '@screens';
 import { AppBar } from '@components';
 
@@ -19,6 +20,7 @@ export default function App() {
       {/* <BookScreen /> */}
       {/* <PaymentScreen /> */}
       {/* <PinScreen title='ID-19' subtitle='Create Pin' /> */}
+      <ProfileScreen />
     </SafeAreaView>
   );
 }

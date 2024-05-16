@@ -4,3 +4,4 @@ export { default as YourLockersScreen  } from './YourLockersScreen';
 export { default as BookScreen } from './BookScreen';
 export { default as PinScreen } from './PinScreen';
 export { default as PaymentScreen } from './PaymentScreen';
+export { default as ProfileScreen } from './ProfileScreen';
