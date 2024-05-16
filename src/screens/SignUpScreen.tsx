@@ -1,4 +1,4 @@
-import { SafeAreaView, Text, StyleSheet } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
@@ -17,8 +17,9 @@ export default function SignUpScreen() {
   }
 
   return (
-    <LinearGradient colors={[Colors.orange, Colors.red]} style={StyleSheet.absoluteFillObject}>
-      <SafeAreaView style={styles.safeArea}>
+    <>
+      <LinearGradient colors={[Colors.orange, Colors.red]} style={StyleSheet.absoluteFill} />
+      <View style={styles.container}>
         <Modal style={{ alignItems: 'center', marginBottom: 19 }}>
           <Text style={styles.title}>Sign Up</Text>
           <CredentialInput 
@@ -37,13 +38,13 @@ export default function SignUpScreen() {
           <Text style={[styles.smallText, { fontFamily: 'Inter-Bold' }]}>Login</Text>
         </Button>
         <StatusBar style="light" />
-      </SafeAreaView>
-    </LinearGradient>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',

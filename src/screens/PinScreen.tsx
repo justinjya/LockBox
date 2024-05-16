@@ -1,13 +1,19 @@
-import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { Colors } from '@values';
-import { Button, Modal, CredentialInput, Keypad } from '@components';
+import { Button, Keypad } from '@components';
+import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 
-export default function PinScreen() {
+interface PinScreenProps {
+  title?: string,
+  subtitle?: string,
+}
+
+export default function PinScreen({ title, subtitle }: PinScreenProps) {
+  const [pin, setPin] = useState('');
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf'),
@@ -16,8 +22,6 @@ export default function PinScreen() {
   if (!fontsLoaded && !fontError) {
     return null;
   }
-
-  const [pin, setPin] = useState('');
 
   const handleSetPin = (value: string) => {
     if (value.length <= 4) {
@@ -28,10 +32,10 @@ export default function PinScreen() {
   return (
     <>
       <LinearGradient colors={[Colors.orange, Colors.red]} style={StyleSheet.absoluteFill} />
-      <SafeAreaView style={{ width: '100%', alignItems: 'center', paddingHorizontal: 24 }}>
-        <Ionicons name={'arrow-back'} size={32} color={Colors.white} style={{ alignSelf: 'flex-start', marginBottom: 40 }} />
-        <Text style={styles.title}>ID - 19</Text>
-        <Text style={styles.subTitle}>Create Pin</Text>
+      <View style={styles.container}>
+        <Ionicons name='arrow-back' size={32} color={Colors.white} style={{ alignSelf: 'flex-start', marginBottom: 40 }} />
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.subtitle}>{subtitle}</Text>
         <View style={{ flexDirection: 'row', marginBottom: 50 }}>
           {Array(4).fill(null).map((_, index) => (
             <View key={index} style={{
@@ -47,24 +51,25 @@ export default function PinScreen() {
         </View>
         <Keypad value={pin} setValue={handleSetPin} style={{ marginBottom: 38 }} />
         <Button title="Enter" style={{ backgroundColor: Colors.white }} textStyle={{ color: Colors.red }} />
-      </SafeAreaView>
+        <StatusBar style="light" />
+      </View>
     </>
   )
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 24
   },
   title: {
     color: Colors.white,
     fontSize: 40,
     fontFamily: 'Poppins-Bold',
-    marginBottom: 9,
+    marginBottom: 8,
   },
-  subTitle: {
+  subtitle: {
     color: Colors.white,
     fontSize: 20,
     fontFamily: 'Poppins-Regular',

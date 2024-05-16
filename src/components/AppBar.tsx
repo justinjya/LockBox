@@ -1,46 +1,28 @@
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { Colors } from '@values';
-import Button from './Button';
 import Logo from './svg/Logo';
 
 export default function AppBar() {
   return (
-    <LinearGradient colors={[Colors.orange, Colors.red]} style={styles.background}>
-      <View style={styles.appBar}>
-        <Button style={styles.homeButton}>
-          <Logo width={61} height={26} />
-        </Button>
-        <Button style={styles.userButton}>
-          <FontAwesome name="user-o" size={24} color={Colors.white} />    
-        </Button>  
-      </View>
-    </LinearGradient>
+    <View style={styles.container}>
+      <LinearGradient colors={[Colors.orange, Colors.red]} style={StyleSheet.absoluteFillObject} />
+      <Ionicons name='arrow-back' size={24} color={Colors.white} />    
+      <Logo width={61} height={26} />
+      <FontAwesome name='user-o' size={24} color={Colors.white} />    
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  background: {
+  container: {
     width: '100%',
     height: 70,
-  },
-  appBar: {
-    width: '100%',
-    height: 70,
+    backgroundColor: Colors.gray,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 24,
-  },
-  homeButton: {
-    backgroundColor: 'transparent',
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-  },
-  userButton: {
-    backgroundColor: 'transparent',
-    paddingVertical: 0,
-    paddingHorizontal: 0,
   },
 });

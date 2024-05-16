@@ -6,11 +6,19 @@ import { useFonts } from 'expo-font';
 import { Colors } from '@values';
 import Button from './Button';
 
-interface CardProps { 
-  // TODO: Define props after finalized data structure
+interface Locker {
+  id: number;
+  name: string;
+  location: string;
+  locked: boolean;
 }
 
-export default function Card() {
+interface CardProps { 
+  locker: Locker;
+  style?: object;
+}
+
+export default function YourLockerCard({ locker, style }: CardProps) {
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf'),
@@ -21,17 +29,19 @@ export default function Card() {
   }
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, style]}>
       <View style={styles.lockerDetailsSection}>
-        <Text style={styles.lockerName}>LO-19</Text>
+        <Text style={styles.lockerName}>{locker.name}</Text>
         <View style={styles.locationSection}>
-          <SimpleLineIcons name="location-pin" size={16} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
-          <Text style={styles.locationText}>Locker Location</Text>
+          <SimpleLineIcons name="location-pin" size={15} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
+          <Text style={styles.locationText}>{locker.location}</Text>
         </View>
       </View>
       <Button style={styles.lockUnlockButton}>
         <LinearGradient colors={[Colors.orange, Colors.red]} style={[StyleSheet.absoluteFillObject, { borderRadius: 50 }]} />
-        <Octicons name="unlock" size={28} color={Colors.white} />
+        { locker.locked ? 
+          <Octicons name="lock" size={28} color={Colors.white} /> :
+          <Octicons name="unlock" size={28} color={Colors.white} /> }
       </Button>
     </View>
   )
@@ -40,13 +50,13 @@ export default function Card() {
 const styles = StyleSheet.create({
   card: {
     width: '100%',
-    height: 80,
+    height: 91,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: Colors.orangeLighter,
+    borderColor: Colors.grayDarker,
     padding: 20,
   },
   lockerDetailsSection: {
@@ -56,6 +66,7 @@ const styles = StyleSheet.create({
     color: Colors.orangeDarker,
     fontSize: 16,
     fontFamily: 'Poppins-Bold',
+    marginBottom: 3
   },
   locationSection: {
     flexDirection: 'row',
