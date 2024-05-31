@@ -1,6 +1,6 @@
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { useFonts } from 'expo-font';
-import { Colors } from '@values';
+import { Colors } from 'src/values';
 import React from 'react';
 
 interface ButtonProps {

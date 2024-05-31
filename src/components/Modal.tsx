@@ -1,6 +1,6 @@
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import React from 'react';
-import { Colors } from '@values';
+import { Colors } from 'src/values';
 
 interface ModalProps {
   children?: React.ReactNode;

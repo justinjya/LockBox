@@ -1,9 +1,10 @@
 import { View, StyleSheet, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Octicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import { Colors } from '@values';
+import { Colors } from 'src/values';
 import Button from './Button';
 
 interface Locker {
@@ -28,6 +29,8 @@ export default function YourLockerCard({ locker, style }: CardProps) {
     return null;
   }
 
+  const navigation: any = useNavigation();
+
   return (
     <View style={[styles.card, style]}>
       <View style={styles.lockerDetailsSection}>
@@ -37,7 +40,7 @@ export default function YourLockerCard({ locker, style }: CardProps) {
           <Text style={styles.locationText}>{locker.location}</Text>
         </View>
       </View>
-      <Button style={styles.lockUnlockButton}>
+      <Button style={styles.lockUnlockButton} onPress={() => navigation.navigate('Pin', { name: locker.name, state: 'unlock' })}>
         <LinearGradient colors={[Colors.orange, Colors.red]} style={[StyleSheet.absoluteFillObject, { borderRadius: 50 }]} />
         { locker.locked ? 
           <Octicons name="lock" size={28} color={Colors.white} /> :

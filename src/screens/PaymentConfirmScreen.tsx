@@ -25,7 +25,7 @@ interface PaymentScreenProps {
   navigation: any;
 }
 
-export default function PaymentScreen({ route, navigation }: PaymentScreenProps) {
+export default function PaymentConfirmScreen({ route, navigation }: PaymentScreenProps) {
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf'),
@@ -102,7 +102,7 @@ export default function PaymentScreen({ route, navigation }: PaymentScreenProps)
         </View>
       </View> */}
 
-      <StatusBar style="light" />
+      <StatusBar style="auto" />
     </>
   );
 }

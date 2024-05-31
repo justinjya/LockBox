@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@values';
+import { Colors } from 'src/values';
 import Button from './Button';
 
 export default function Alert() {

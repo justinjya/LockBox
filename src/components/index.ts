@@ -1,5 +1,6 @@
 export { default as AppBar } from './AppBar';
 export { default as Button } from './Button';
+export { default as IconButton } from './IconButton';
 export { default as YourLockerCard } from './YourLockerCard';
 export { default as CredentialInput } from './CredentialInput';
 export { default as Keypad } from './Keypad';

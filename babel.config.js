@@ -6,9 +6,11 @@ module.exports = function(api) {
       ['module-resolver', {
         alias: {
           "@fonts": "./assets/fonts",
-          "@values": "./values",
+          "@values": "./src/values",
           "@components": "./src/components",
           "@screens": "./src/screens",
+          "@utils": "./src/utils",
+          "@navigation": "./src/navigation",
         }
       }]
     ]

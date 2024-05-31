@@ -1,50 +1,59 @@
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { AppBar } from '@components';
-import { Colors } from '@values';
-import { BookALockerCard, Button } from '@components';
-import LogoAlt from 'src/components/svg/LogoAlt';
+import { Colors } from 'src/values';
+import { BookALockerCard } from '@components';
 
-interface Locker {
-  id: number;
-  name: string;
-  location: string;
-  locked: boolean;
-}
-
-const data = [ // TODO: Finalize data structure then replace
-  { 
+const data = [
+  {
     id: 1,
-    name: 'ID-19',
     location: 'GKU 3',
-    locked: true
+    totalLockers: 2,
+    availableLockers: 1,
+    lockers: [
+      {
+        id: 1,
+        name: 'ID-19',
+        booked: true
+      },
+      {
+        id: 2,
+        name: 'ID-20',
+        booked: false
+      }
+    ]
   },
-  { 
-    id: 2,
-    name: 'ID-08',
-    location: 'Plano',
-    locked: false
-  },
-  { 
-    id: 3,
-    name: 'ID-13',
-    location: 'GKU 1',
-    locked: true
-  },
-  { 
-    id: 4,
-    name: 'ID-18',
-    location: 'Perpustakaan',
-    locked: true
-  },
-  { 
-    id: 5,
-    name: 'ID-03',
-    location: 'KOICA',
-    locked: true
-  },
-] as Array<Locker>;
+  // {
+  //   id: 2,
+  //   location: 'Plano',
+  //   totalLockers: 1,
+  //   availableLockers: 0,
+  //   lockers: []
+  // },
+  // {
+  //   id: 3,
+  //   location: 'GKU 1',
+  //   totalLockers: 3,
+  //   availableLockers: 3,
+  //   lockers: []
+  // },
+  // {
+  //   id: 4,
+  //   location: 'Perpustakaan',
+  //   totalLockers: 5,
+  //   availableLockers: 0,
+  //   lockers: []
+  // },
+  // {
+  //   id: 5,
+  //   location: 'KOICA',
+  //   totalLockers: 3,
+  //   availableLockers: 2,
+  //   lockers: []
+  // },
+]
 
 // TO-DO - Add pagination
 export default function BookScreen() {
@@ -58,19 +67,19 @@ export default function BookScreen() {
   }
 
   return (
-    <>
-      <AppBar />
+    <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'bottom']}>
+      <AppBar profileButtonDisabled />
       <View style={styles.container}>
         <Text style={styles.title}>Choose Your Location</Text>
         <FlatList
           data={data}
           renderItem={({ item }) => (
-            <BookALockerCard locker={item} style={{ marginBottom: 15 }} />
+            <BookALockerCard item={item} style={{ marginBottom: 15 }} />
           )}
         />
       </View>
-      <StatusBar style="auto" />
-    </>
+      <StatusBar style="light" />
+    </SafeAreaView>
   );
 }
 

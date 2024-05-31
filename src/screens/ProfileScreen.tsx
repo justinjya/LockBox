@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Text, StyleSheet, View } from "react-native";
 import { useFonts } from 'expo-font';
-import { Colors } from "@values";
+import { Colors } from "src/values";
 import { AppBar, CredentialInput, Button } from '@components';
+import { AuthContext } from '@utils';
 
 export default function ProfileScreen() {
+  const { logOut } = useContext(AuthContext);
   const [name, setName] = useState('Kartika Sari');
   const [number, setNumber] = useState('081212336163');
   const [email, setEmail] = useState('kartik@mail.com');
@@ -25,52 +27,56 @@ export default function ProfileScreen() {
   };
 
   return (
-      <>
-        <AppBar />
-        <View style={styles.container}>
-            <Text style={styles.label}>Name</Text>
-            <CredentialInput 
-              value={name} 
-              onChangeText={(text) => { setName(text); setIsChanged(true); }} 
-              style={styles.inputField} 
-            />
-            <Text style={styles.label}>Number</Text>
-            <CredentialInput 
-              value={number} 
-              onChangeText={(text) => { setNumber(text); setIsChanged(true); }} 
-              style={styles.inputField} 
-            />
-            <Text style={styles.label}>Email</Text>
-            <CredentialInput 
-              value={email} 
-              onChangeText={(text) => { setEmail(text); setIsChanged(true); }} 
-              style={styles.inputField} 
-            />
-            <Button 
-              title='Save' 
-              style={[styles.saveButton, !isChanged && styles.disabledButton]} 
-              disabled={!isChanged}
-              onPress={() => {
-                  setinitiallName(name);
-                  setinitiallNumber(number);
-                  setinitiallEmail(email);
-                  setIsChanged(false);
-              }}
-            />
-            <Button 
-              title='Discard' 
-              style={[styles.discardButton, !isChanged && styles.disabledButton]} 
-              textStyle={[styles.discardButtonText, !isChanged && styles.disabledButtonText]}
-              disabled={!isChanged}
-              onPress={() => {
-                  setName(initiallName);
-                  setNumber(initiallNumber);
-                  setEmail(initiallEmail);
-                  setIsChanged(false);
-              }}
-            />
-            <Button title='Log Out' style={styles.logoutButton} textStyle={styles.logoutButtonText}/>
-        </View>
+    <>
+      <AppBar title='Profile' profileButtonDisabled />
+      <View style={styles.container}>
+          <Text style={styles.label}>Name</Text>
+          <CredentialInput 
+            value={name} 
+            onChangeText={(text) => { setName(text); setIsChanged(true); }} 
+            style={styles.inputField} 
+          />
+          <Text style={styles.label}>Number</Text>
+          <CredentialInput 
+            value={number} 
+            onChangeText={(text) => { setNumber(text); setIsChanged(true); }} 
+            style={styles.inputField} 
+          />
+          <Text style={styles.label}>Email</Text>
+          <CredentialInput 
+            value={email} 
+            onChangeText={(text) => { setEmail(text); setIsChanged(true); }} 
+            style={styles.inputField} 
+          />
+          <Button 
+            title='Save' 
+            style={[styles.saveButton, !isChanged && styles.disabledButton]} 
+            disabled={!isChanged}
+            onPress={() => {
+                setinitiallName(name);
+                setinitiallNumber(number);
+                setinitiallEmail(email);
+                setIsChanged(false);
+            }}
+          />
+          <Button 
+            title='Discard' 
+            style={[styles.discardButton, !isChanged && styles.disabledButton]} 
+            textStyle={[styles.discardButtonText, !isChanged && styles.disabledButtonText]}
+            disabled={!isChanged}
+            onPress={() => {
+                setName(initiallName);
+                setNumber(initiallNumber);
+                setEmail(initiallEmail);
+                setIsChanged(false);
+            }}
+          />
+          <Button
+            title='Log Out'
+            style={styles.logoutButton}
+            textStyle={styles.logoutButtonText}
+            onPress={() => logOut()}/>
+      </View>
     </>
   );
 };
@@ -88,7 +94,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Segoe UI'
   },
   inputField: {
-    backgroundColor: Colors.grayLighter,
+    backgroundColor: Colors.gray,
     borderRadius: 8,
     paddingHorizontal: 16,
     marginBottom: 13,

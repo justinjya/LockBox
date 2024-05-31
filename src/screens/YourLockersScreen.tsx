@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { AppBar } from '@components';
-import { Colors } from '@values';
+import { Colors } from 'src/values';
 import { YourLockerCard, Button } from '@components';
 import LogoAlt from 'src/components/svg/LogoAlt';
 
@@ -34,7 +35,11 @@ const data = [ // TODO: Finalize data structure then replace
   },
 ] as Array<Locker>;
 
-export default function YourLockersScreen() {
+interface YourLockersScreenProps {
+  navigation: any;
+}
+
+export default function YourLockersScreen({ navigation }: YourLockersScreenProps) {
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf')
@@ -45,33 +50,40 @@ export default function YourLockersScreen() {
   }
 
   return (
-    <>
-      <AppBar />
-      {/* <View style={styles.containerAlt}>
-        <View style={{ flexDirection: 'row', marginBottom: 138 }}>
-          <Text style={styles.title}>Your Lockers</Text>
-          <Text style={styles.titleNumber}> (0)</Text>
-        </View>
-        <LogoAlt style={{ alignSelf: 'center', marginBottom: 16 }} />
-        <Text style={styles.text}>You Haven't Booked Any Locker Yet!</Text>
-        <Button title="Book Locker" style={{ alignSelf: 'center', marginBottom: 24 }}/> 
-      </View> */}
-
+    <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'bottom']}>
+      <AppBar backButtonDisabled />
       <View style={styles.container}>
-        <View style={{ flexDirection: 'row', marginBottom: 22 }}>
-          <Text style={styles.title}>Your Lockers</Text>
-          <Text style={styles.titleNumber}> ({data.length})</Text>
-        </View>
-        <FlatList
-          data={data}
-          renderItem={({ item }) => (
-            <YourLockerCard locker={item} style={{ marginBottom: 15 }} />
-          )}
-        />
+        {data.length === 0 ? (
+          <>
+            <View style={{ flexDirection: 'row', marginBottom: 138 }}>
+              <Text style={styles.title}>Your Lockers</Text>
+              <Text style={styles.titleNumber}> (0)</Text>
+            </View>
+            <LogoAlt style={{ alignSelf: 'center', marginBottom: 16 }} />
+            <Text style={styles.text}>You Haven't Booked Any Locker Yet!</Text>
+            <Button title="Book Locker" style={{ alignSelf: 'center', marginBottom: 24 }}/> 
+          </>
+        ) : (
+          <>
+            <View style={{ flexDirection: 'row', marginBottom: 22 }}>
+              <Text style={styles.title}>Your Lockers</Text>
+              <Text style={styles.titleNumber}> ({data.length})</Text>
+            </View>
+            <FlatList
+              data={data}
+              renderItem={({ item }) => (
+                <YourLockerCard locker={item} style={{ marginBottom: 15 }} />
+              )}
+            />
+            <Button 
+              title="Book Locker"
+              style={{ alignSelf: 'center', marginBottom: 24 }}
+              onPress={() => navigation.navigate('Book')} />
+          </>
+        )}
       </View>
-      <Button title="Book Locker" style={{ alignSelf: 'center', marginBottom: 24 }}/>
-      <StatusBar style="auto" />
-    </>
+      <StatusBar style="light" />
+    </SafeAreaView>
   );
 }
 

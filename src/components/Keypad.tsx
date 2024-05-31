@@ -1,7 +1,7 @@
-import { Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, FlatList, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import { Colors } from '@values';
+import { Colors } from 'src/values';
 
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, -1];
 
@@ -30,14 +30,11 @@ export default function Keypad({ value, setValue, style }: KeypadProps) {
 
   return (
     <>
-      <FlatList
-        data={numbers}
-        keyExtractor={item => item.toString()}
-        numColumns={3}
-        columnWrapperStyle={{ justifyContent: 'flex-end'}}
-        renderItem={({ item }) => (
+      <View style={[styles.container, style]}>
+        {numbers.map((item, index) => (
           item === -1 ? (
             <TouchableOpacity 
+              key={index}
               style={[styles.circle, { backgroundColor: 'transparent' }]}
               onPress={() => handlePress(item)}
             >
@@ -48,19 +45,26 @@ export default function Keypad({ value, setValue, style }: KeypadProps) {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity 
+              key={index}
               style={styles.circle}
               onPress={() => handlePress(item)}
             >
               <Text style={styles.number}>{item}</Text>
             </TouchableOpacity>
           )
-        )}
-        style={style} />
+        ))}
+      </View>
     </>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    width: '76%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end'
+  },
   circle: {
     backgroundColor: Colors.anotherOrange,
     width: 63,

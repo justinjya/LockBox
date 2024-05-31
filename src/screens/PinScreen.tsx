@@ -1,20 +1,21 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import { Colors } from '@values';
-import { Button, Keypad } from '@components';
+import { Colors } from 'src/values';
+import { Button, IconButton, Keypad } from '@components';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 
 interface PinScreenProps {
-  title?: string,
+  route: any,
+  navigation: any;
   subtitle?: string,
 }
 
-export default function PinScreen({ title, subtitle }: PinScreenProps) {
-  const [pin, setPin] = useState('');
-  const [fontsLoaded, fontError] = useFonts({
+export default function PinScreen({ route, navigation }: PinScreenProps) {
+    const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf'),
   });
@@ -23,18 +24,83 @@ export default function PinScreen({ title, subtitle }: PinScreenProps) {
     return null;
   }
 
+  const { name, state } = route.params;
+  const [tempPin, setTempPin] = useState('');
+  const [pin, setPin] = useState('');
+  const [confirmingPin, setConfirmingPin] = useState(false);
+  const [triesLeft, setTriesLeft] = useState(2);
+
+  const [subtitle, setSubtitle] = useState(() => {
+    if (state === 'create') {
+      return 'Create PIN';
+    } else if (state === 'unlock') {
+      return 'Unlock Locker';
+    }
+  });
+
   const handleSetPin = (value: string) => {
     if (value.length <= 4) {
-      setPin(value);
+      setTempPin(value);
     }
   };
 
+  const validatePin = () => {
+    if (state === 'create') {
+      return tempPin === pin;
+    } else if (state === 'unlock') {
+      return true;
+    }
+  }
+
+  const handleButtonPress = () => {
+    if (state === 'create') {
+      if (!confirmingPin) {
+        setPin(tempPin);
+        setTempPin('');
+        setConfirmingPin(true);
+        setSubtitle('Confirm PIN');
+        return;
+      }
+
+      if (triesLeft === 0) {
+        navigation.goBack();
+      }
+
+      const valid = validatePin();
+      if (!valid) {
+        setTriesLeft(triesLeft - 1);
+        setTempPin('');
+        setSubtitle('Wrong PIN');
+        return;
+      }
+
+      navigation.goBack();
+      return;
+    }
+
+    if (state === 'unlock') {
+      const valid = validatePin();
+      if (!valid) {
+        setTempPin('');
+        setSubtitle('Wrong PIN');
+        return;
+      }
+
+      navigation.goBack();
+      return;
+    }
+  }
+
   return (
-    <>
+    <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'top', 'bottom']}>
       <LinearGradient colors={[Colors.orange, Colors.red]} style={StyleSheet.absoluteFill} />
       <View style={styles.container}>
-        <Ionicons name='arrow-back' size={32} color={Colors.white} style={{ alignSelf: 'flex-start', marginBottom: 40 }} />
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.appBar}>
+          <IconButton icon={
+            <Ionicons name='arrow-back' size={24} color={Colors.white} />
+          } onPress={() => navigation.goBack()} />
+        </View>
+        <Text style={styles.title}>{name}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
         <View style={{ flexDirection: 'row', marginBottom: 50 }}>
           {Array(4).fill(null).map((_, index) => (
@@ -44,16 +110,21 @@ export default function PinScreen({ title, subtitle }: PinScreenProps) {
               borderRadius: 50,
               borderWidth: 1,
               borderColor: Colors.white,
-              backgroundColor: index < pin.length ? Colors.white : 'transparent',
+              backgroundColor: index < tempPin.length ? Colors.white : 'transparent',
               marginHorizontal: 10,
             }} />
           ))}
         </View>
-        <Keypad value={pin} setValue={handleSetPin} style={{ marginBottom: 38 }} />
-        <Button title="Enter" style={{ backgroundColor: Colors.white }} textStyle={{ color: Colors.red }} />
+        <Keypad value={tempPin} setValue={handleSetPin} style={{marginBottom: 38 }} />
+        <Button
+          title="Enter"
+          style={{ backgroundColor: Colors.white, opacity: tempPin.length < 4 ? 0.5 : 1}}
+          textStyle={{ color: Colors.red }}
+          disabled={tempPin.length < 4}
+          onPress={handleButtonPress} />
         <StatusBar style="light" />
       </View>
-    </>
+    </SafeAreaView>
   )
 }
 
@@ -62,6 +133,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: 24
+  },
+  appBar: {
+    width: '100%',
+    height: 70,
+    justifyContent: 'center',
   },
   title: {
     color: Colors.white,

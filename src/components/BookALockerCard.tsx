@@ -1,22 +1,17 @@
 import { View, StyleSheet, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import { Colors } from '@values';
+import { Colors } from 'src/values';
 import Button from './Button';
+import { useState } from 'react';
 
-interface Locker {
-  id: number;
-  name: string;
-  location: string;
-  locked: boolean;
-}
-
-interface CardProps { 
-  locker: Locker;
+interface CardProps {
+  item: any;
   style?: object;
 }
 
-export default function BookALockerCard({ locker, style }: CardProps) {
+export default function BookALockerCard({ item, style }: CardProps) {
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf'),
@@ -26,18 +21,28 @@ export default function BookALockerCard({ locker, style }: CardProps) {
     return null;
   }
 
+  const navigation: any = useNavigation();
+
+  const [availLocker] = useState(() => {
+    const availLockers = item.lockers.filter((locker: any) => !locker.booked);
+    return availLockers[Math.floor(Math.random() * availLockers.length)];
+  });
+
   return (
     <View style={[styles.card, style]}>
       <View style={styles.lockerDetailsSection}>
         <View style={styles.locationSection}>
           <SimpleLineIcons name="location-pin" size={37} color={Colors.orangeDarker} style={{ marginRight: 8 }}/>
           <View style={styles.lockerDetailsSection}>
-            <Text style={styles.locationText}>{locker.location}</Text>
-            <Text style={styles.availability}>12/19 Available</Text>
+            <Text style={styles.locationText}>{item.location}</Text>
+            <Text style={styles.availability}>{item.availableLockers}/{item.totalLockers} Available</Text>
           </View>
         </View>
       </View>
-      <Button title="Book" style={styles.bookButton} />
+      <Button
+        title="Book"
+        style={styles.bookButton}
+        onPress={() => navigation.navigate('Payment', { id: availLocker?.id, name: availLocker?.name, location: item.location })} />
     </View>
   )
 }

@@ -1,32 +1,16 @@
-import { StyleSheet, SafeAreaView } from 'react-native';
-import { 
-  LogInScreen, 
-  SignUpScreen, 
-  YourLockersScreen, 
-  PinScreen,
-  BookScreen,
-  PaymentScreen,
-  ProfileScreen,
-} from '@screens';
-import { AppBar } from '@components';
+import { NavigationContainer } from '@react-navigation/native';
+import { AuthProvider } from '@utils';
+import { RootNavigator } from '@navigation';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      {/* <AppBar /> */}
-      {/* <LogInScreen /> */}
-      {/* <SignUpScreen /> */}
-      {/* <YourLockersScreen /> */}
-      {/* <BookScreen /> */}
-      {/* <PaymentScreen /> */}
-      {/* <PinScreen title='ID-19' subtitle='Create Pin' /> */}
-      <ProfileScreen />
-    </SafeAreaView>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </AuthProvider>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+};
