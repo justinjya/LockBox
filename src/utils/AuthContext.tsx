@@ -1,25 +1,32 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 interface AuthContextData {
-  isLoggedIn: boolean;
-  logIn: () => void;
-  logOut: () => void;
+  user: any;
 }
 
-export const AuthContext = createContext<AuthContextData>({ isLoggedIn: false, logIn: () => {}, logOut: () => {} });
+export const AuthContext = createContext<AuthContextData>({ user: null });
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  const logIn = () => setIsLoggedIn(true);
-  const logOut = () => setIsLoggedIn(false);
+  useEffect(() => {
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, logIn, logOut }}>
+    <AuthContext.Provider value={{ user }}>
       {children}
     </AuthContext.Provider>
   );

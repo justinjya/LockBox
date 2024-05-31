@@ -14,11 +14,11 @@ import { AuthContext } from '@utils';
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
-  const { isLoggedIn } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!isLoggedIn ? (
+      {user === null ? (
         <Stack.Group>
           <Stack.Screen name="LogIn" component={LogInScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />

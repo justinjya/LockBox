@@ -1,12 +1,12 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
-import { Colors } from 'src/values';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { Colors } from '@values';
 import { Button, Modal, CredentialInput } from '@components';
-import { AuthContext } from '@utils';
-import { useContext } from 'react';
+import { useState } from 'react';
 
 interface LogInScreenProps {
   navigation: any;
@@ -23,7 +23,16 @@ export default function LogInScreen({ navigation }: LogInScreenProps) {
     return null;
   }
 
-  const { logIn } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogInPress = async () => {
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, email, password)
+      .catch(() => {
+        Alert.alert('Login Failed', 'Invalid credentials. Please try again.');
+      });
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
@@ -31,13 +40,17 @@ export default function LogInScreen({ navigation }: LogInScreenProps) {
       <Modal style={{ alignItems: 'center', marginBottom: 19 }}>
         <Text style={styles.title}>Log In</Text>
         <CredentialInput 
+          value={email}
+          onChangeText={setEmail}
           placeholder='Email'
           style={{ marginBottom: 29 }} />
         <CredentialInput 
+          value={password}
+          onChangeText={setPassword}
           password
           placeholder='Password'
           style={{ marginBottom: 43 }} />
-        <Button title="Log In" onPress={() => logIn()} />
+        <Button title="Log In" onPress={handleLogInPress} />
       </Modal>
       <Button style={styles.signUpButton} onPress={() => navigation.navigate('SignUp')}>
         <Text style={styles.smallText}>Don't have an account? </Text>

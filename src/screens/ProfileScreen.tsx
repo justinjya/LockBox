@@ -1,12 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Text, StyleSheet, View } from "react-native";
+import { Text, StyleSheet, View, Alert } from "react-native";
 import { useFonts } from 'expo-font';
 import { Colors } from "src/values";
 import { AppBar, CredentialInput, Button } from '@components';
-import { AuthContext } from '@utils';
+import { getAuth, signOut } from 'firebase/auth';
 
 export default function ProfileScreen() {
-  const { logOut } = useContext(AuthContext);
   const [name, setName] = useState('Kartika Sari');
   const [number, setNumber] = useState('081212336163');
   const [email, setEmail] = useState('kartik@mail.com');
@@ -25,6 +24,14 @@ export default function ProfileScreen() {
   if (!fontsLoaded && !fontError) {
       return null;
   };
+
+  const handleLogOutPress = () => {
+    const auth = getAuth();
+    signOut(auth)
+      .catch(() => {
+        Alert.alert('Log Out Failed', 'Something went wrong. Please try again.');
+      });
+  }
 
   return (
     <>
@@ -75,7 +82,7 @@ export default function ProfileScreen() {
             title='Log Out'
             style={styles.logoutButton}
             textStyle={styles.logoutButtonText}
-            onPress={() => logOut()}/>
+            onPress={handleLogOutPress}/>
       </View>
     </>
   );

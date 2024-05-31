@@ -1,10 +1,14 @@
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, Alert } from 'react-native';
+import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
-import { Colors } from 'src/values';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore"; 
+import { Colors } from '@values';
 import { Button, Modal, CredentialInput } from '@components';
+import { db } from '@utils';
 
 interface SignUpScreenProps {
   navigation: any;
@@ -21,22 +25,55 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
     return null;
   }
 
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSignUpPress = async () => {
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+
+        try {
+          await addDoc(collection(db, "users"), {
+            uid: user.uid,
+            name: name,
+            phoneNumber: '',
+            email: email,
+          });
+        } catch (e) {
+          console.error("Error adding document: ", e);
+        }
+      })
+      .catch((error) => {
+        Alert.alert('Error', error.message);
+      });    
+  }
+
+
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <LinearGradient colors={[Colors.orange, Colors.red]} style={StyleSheet.absoluteFill} />
       <Modal style={{ alignItems: 'center', marginBottom: 19 }}>
         <Text style={styles.title}>Sign Up</Text>
-        <CredentialInput 
+        <CredentialInput
+          value={name}
+          onChangeText={setName}
           placeholder='Name'
           style={{ marginBottom: 29 }} />
         <CredentialInput 
+          value={email}
+          onChangeText={setEmail}
           placeholder='Email'
           style={{ marginBottom: 29 }} />
         <CredentialInput
+          value={password}
+          onChangeText={setPassword}
           password
           placeholder='Password'
           style={{ marginBottom: 43 }} />
-        <Button title="Sign Up"/>
+        <Button title="Sign Up" onPress={handleSignUpPress}/>
       </Modal>
       <Button style={styles.signUpButton} onPress={() => navigation.navigate('LogIn')}>
         <Text style={styles.smallText}>Already have an account? </Text>
