@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { collection, addDoc } from "firebase/firestore"; 
+import { doc, setDoc } from "firebase/firestore"; 
 import { Colors } from '@values';
 import { Button, Modal, CredentialInput } from '@components';
 import { db } from '@utils';
@@ -36,8 +36,9 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
         const user = userCredential.user;
 
         try {
-          await addDoc(collection(db, "users"), {
-            uid: user.uid,
+          const userDocRef = doc(db, 'users', user.uid);
+
+          await setDoc(userDocRef, {
             name: name,
             phoneNumber: '',
             email: email,

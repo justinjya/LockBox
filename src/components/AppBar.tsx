@@ -12,9 +12,10 @@ interface AppBarProps {
   title?: string;
   backButtonDisabled?: boolean;
   profileButtonDisabled?: boolean;
+  onBackPress?: () => void;
 }
 
-export default function AppBar({ title, backButtonDisabled, profileButtonDisabled }: AppBarProps = { backButtonDisabled: false, profileButtonDisabled: false }) {
+export default function AppBar({ title, backButtonDisabled, profileButtonDisabled, onBackPress }: AppBarProps = { backButtonDisabled: false, profileButtonDisabled: false }) {
   if (title) {
     const [fontsLoaded, fontError] = useFonts({
       'Poppins-Bold': require('@fonts/Poppins-Bold.ttf')
@@ -35,7 +36,7 @@ export default function AppBar({ title, backButtonDisabled, profileButtonDisable
         <LinearGradient colors={[Colors.orange, Colors.red]} style={StyleSheet.absoluteFillObject} />
         <IconButton icon={
           <Ionicons name='arrow-back' size={24} color={backButtonDisabled ? 'transparent' : Colors.white} />
-        } onPress={() => navigation.goBack()} disabled={backButtonDisabled} />
+        } onPress={onBackPress? onBackPress : () => navigation.goBack()} disabled={backButtonDisabled} />
         {title ? (
           <Text style={{ color: Colors.white, fontSize: 20, fontFamily: 'Poppins-Bold' }}>{title}</Text>
         ) : (

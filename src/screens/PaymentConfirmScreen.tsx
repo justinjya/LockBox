@@ -1,24 +1,14 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { StackActions } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { AppBar } from '@components';
 import { Colors } from 'src/values';
-import { Button, Alert, SuccessCircle, ErrorCircle } from '@components';
+import { Button, SuccessCircle, ErrorCircle } from '@components';
 import { SimpleLineIcons } from '@expo/vector-icons';
-
-interface Locker {
-  id: number;
-  name: string;
-  location: string;
-  locked: boolean;
-}
-
-const locker = { 
-  id: 1,
-  name: 'ID-19',
-  location: 'GKU 3',
-  locked: true
-} as Locker;
+import { useContext, useEffect } from 'react';
+import { AuthContext, db } from '@utils';
+import { collection, doc, getDocs, query, runTransaction, where } from 'firebase/firestore';
 
 interface PaymentScreenProps {
   route: any;
@@ -36,72 +26,140 @@ export default function PaymentConfirmScreen({ route, navigation }: PaymentScree
     return null;
   }
 
-  const { id, name, location } = route.params;
+  const { id, name, location, pin ,state } = route.params;
+  const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (state === 'success') {
+      const userRef = doc(db, 'users', user.uid);
+      const locationsRef = collection(db, 'locations');
+      const q = query(locationsRef, where('name', '==', location));
+
+      getDocs(q).then((querySnapshot) => {
+        let locationSnapshot: any;
+        let lockerSnapshot: any;
+
+        querySnapshot.forEach((locDoc) => {
+          const locationRef = locDoc.ref;
+          const lockerRef = doc(locationRef, 'lockers', id);
+    
+          runTransaction(db, async (transaction) => {
+            locationSnapshot = await transaction.get(locationRef);
+            lockerSnapshot = await transaction.get(lockerRef);
+
+            if (!locationSnapshot.exists() || !lockerSnapshot.exists()) {
+              throw 'Document does not exist!';
+            }
+
+            // Add locker to user's lockers collection
+            const userLockersRef = doc(userRef, 'lockers', id);
+            transaction.set(userLockersRef, {
+              name,
+              location,
+              pin,
+              locked: true,
+              ipAddress: lockerSnapshot.data().ipAddress
+            });
+    
+            // Update locker's booked state
+            transaction.set(lockerRef, { booked: true }, { merge: true });
+  
+            // Decrease availLockers by 1, but not below 0
+            const availableLockers = locationSnapshot.data().availableLockers;
+            const newAvailableLockers = availableLockers > 0 ? availableLockers - 1 : 0;
+            transaction.update(locationRef, { availableLockers: newAvailableLockers });
+          }).then(() => {
+            const ipAddress = lockerSnapshot.data().ipAddress;
+          
+            fetch(`http://${ipAddress}/led`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ led: 'unavail' }),
+            }).catch((error) => {
+              console.error('Network request failed', error);
+            });
+          }).catch((error) => {
+            console.log('Transaction failed: ', error);
+          });
+        });
+      });
+    }
+  }, [state]);
+
+  const handleUnlockLockerPress = () => {
+    navigation.navigate('Pin', {
+      id: id,
+      name: name,
+      location: location,
+      state: 'unlock'
+    });
+  };
+
+  const handleTryAgain = () => {
+    navigation.navigate('Book');
+  };
+
+  const handleHomePress = () => {
+    navigation.dispatch(
+      StackActions.popToTop()
+    );
+  };
 
   return (
     <>
-      <AppBar profileButtonDisabled />
-      {/* Initial */}
+      <AppBar backButtonDisabled profileButtonDisabled />
       <View style={styles.container}>
-        <Text style={styles.title}>Payment</Text>
-        <View style={styles.detailsSection}>
-          <Text style={styles.lockerName}>{name}</Text>
-          <View style={styles.locationSection}>
-            <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
-            <Text style={styles.locationText}>{location}</Text>
-          </View>
-          <View style={styles.qrCodeContainer}>
-            <Text style={{ fontFamily: 'Poppins-Regular' }}>QR Code goes here</Text>
-          </View>
-          <Text style={styles.text}>
-            Before finalizing your purchase, always ensure you've verified the location of the locker
-          </Text>
-          <Button title='Confirm' onPress={() => navigation.navigate('Pin', { name: name, state: 'create' })} />
-        </View>
+        <Text style={[styles.title, { color: 'transparent' }]}>Payment</Text>
+        {state === 'success' ? (
+          <>
+            <View style={styles.detailsSection}>
+              <SuccessCircle style={{ marginBottom: 10 }}/>
+              <Text style={{ fontSize: 20, fontFamily: 'Poppins-Bold', color: Colors.orangeDarker }}>Hooray!</Text>
+              <Text style={{ width: '60%', fontSize: 18, fontFamily: 'Segoe UI', textAlign: 'center', marginBottom: 30 }}>Your locker is successfully booked</Text>
+              <Text style={styles.lockerName}>{name}</Text>
+              <View style={[styles.locationSection, { marginBottom: 34 }]}>
+                <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
+                <Text style={styles.locationText}>{location}</Text>
+              </View>
+              <Text style={[styles.text, { width: '50%', marginBottom: 24 }]}>
+                Please enter your PIN to unlock the locker
+              </Text>
+              <Button title='Unlock Locker' style={{ marginBottom: 11 }} onPress={handleUnlockLockerPress} />
+              <Button
+                title='Home'
+                textStyle={{ color: Colors.orangeDarker }}
+                style={styles.homeButton}
+                onPress={handleHomePress} />
+            </View>
+          </>
+        ) : null}
+
+        {state === 'failed' ? (
+          <>
+            <View style={styles.detailsSection}>
+              <ErrorCircle style={{ marginBottom: 10 }}/>
+              <Text style={{ fontSize: 20, fontFamily: 'Poppins-Bold', color: Colors.orangeDarker }}>Uh Oh!</Text>
+              <Text style={{ width: '60%', fontSize: 18, fontFamily: 'Segoe UI', textAlign: 'center', marginBottom: 30 }}>something went wrong</Text>
+              <Text style={styles.lockerName}>{name}</Text>
+              <View style={[styles.locationSection, { marginBottom: 34 }]}>
+                <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
+                <Text style={styles.locationText}>{location}</Text>
+              </View>
+              <Text style={[styles.text, { width: '60%', marginBottom: 24 }]}>
+                Please make another attempt to book your locker
+              </Text>
+              <Button title='Try Again' style={{ paddingHorizontal: 76, marginBottom: 11 }} onPress={handleTryAgain} />
+              <Button
+                title='Home'
+                textStyle={{ color: Colors.orangeDarker }}
+                style={styles.homeButton}
+                onPress={handleHomePress} />
+            </View>
+          </>
+        ) : null}
       </View>
-
-      {/* <Alert /> */}
-
-      {/* Success */}
-      {/* <View style={styles.container}>
-        <Text style={[styles.title, { color: 'transparent' }]}>Payment</Text>
-        <View style={styles.detailsSection}>
-          <SuccessCircle style={{ marginBottom: 10 }}/>
-          <Text style={{ fontSize: 20, fontFamily: 'Poppins-Bold', color: Colors.orangeDarker }}>Hooray!</Text>
-          <Text style={{ width: '60%', fontSize: 18, fontFamily: 'Segoe UI', textAlign: 'center', marginBottom: 30 }}>Your locker is successfully booked</Text>
-          <Text style={styles.lockerName}>{locker.name}</Text>
-          <View style={[styles.locationSection, { marginBottom: 34 }]}>
-            <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
-            <Text style={styles.locationText}>{locker.location}</Text>
-          </View>
-          <Text style={[styles.text, { width: '50%', marginBottom: 24 }]}>
-            Please enter your PIN to unlock the locker
-          </Text>
-          <Button title='Unlock Locker' style={{ marginBottom: 11 }} />
-          <Button title='Home' textStyle={{ color: Colors.orangeDarker }} style={{ backgroundColor: 'transparent', borderWidth: 1, borderColor: Colors.orangeDarker, paddingHorizontal: 87 }} />
-        </View>
-      </View> */}
-
-      {/* Failed */}
-      {/* <View style={styles.container}>
-        <Text style={[styles.title, { color: 'transparent' }]}>Payment</Text>
-        <View style={styles.detailsSection}>
-          <ErrorCircle style={{ marginBottom: 10 }}/>
-          <Text style={{ fontSize: 20, fontFamily: 'Poppins-Bold', color: Colors.orangeDarker }}>Uh Oh!</Text>
-          <Text style={{ width: '60%', fontSize: 18, fontFamily: 'Segoe UI', textAlign: 'center', marginBottom: 30 }}>something went wrong</Text>
-          <Text style={styles.lockerName}>{locker.name}</Text>
-          <View style={[styles.locationSection, { marginBottom: 34 }]}>
-            <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
-            <Text style={styles.locationText}>{locker.location}</Text>
-          </View>
-          <Text style={[styles.text, { width: '60%', marginBottom: 24 }]}>
-            Please make another attempt to book your locker
-          </Text>
-          <Button title='Try Again' style={{ paddingHorizontal: 76, marginBottom: 11 }} />
-          <Button title='Home' textStyle={{ color: Colors.orangeDarker }} style={{ backgroundColor: 'transparent', borderWidth: 1, borderColor: Colors.orangeDarker, paddingHorizontal: 87 }} />
-        </View>
-      </View> */}
-
       <StatusBar style="auto" />
     </>
   );
@@ -142,16 +200,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Poppins-Regular',
   },
-  qrCodeContainer: {
-    width: 203,
-    height: 203,
-    borderRadius: 10,
-    borderColor: Colors.grayDarker,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 26,
-  },
   text: {
     color: Colors.textDark,
     fontSize: 12,
@@ -160,5 +208,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
     marginBottom: 31,
+  },
+  homeButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.orangeDarker,
+    paddingHorizontal: 87
   }
 });

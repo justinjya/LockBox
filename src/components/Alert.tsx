@@ -2,17 +2,25 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from 'src/values';
 import Button from './Button';
+import IconButton from './IconButton';
 
-export default function Alert() {
+interface AlertProps {
+  onYesPress?: () => void;
+  onNoPress?: () => void;
+}
+
+export default function Alert({ onYesPress, onNoPress }: AlertProps) {
   return (
     <View style={styles.container}>
-      <Ionicons name="close-sharp" size={25} color={Colors.white} style={styles.closeIcon} />
+      <IconButton
+        icon={<Ionicons name='close-sharp' size={25} color={Colors.white} style={styles.closeIcon} />}
+        onPress={onNoPress} />
       <View style={styles.alertContent}>
         <Text style={styles.alertTitle}>Alert!</Text>
         <Text style={styles.alertMessage}>Canceling the payment will automatically cancel your locker booking. Continue?</Text>
         <View style={styles.buttonContainer}>
-          <Button title='Yes' style={styles.yesButton} />
-          <Button title='No' textStyle={{ color: Colors.orangeDarker }} style={styles.noButton} />
+          <Button title='Yes' style={styles.yesButton} onPress={onYesPress} />
+          <Button title='No' textStyle={{ color: Colors.orangeDarker }} style={styles.noButton} onPress={onNoPress} />
         </View>
       </View>
     </View>

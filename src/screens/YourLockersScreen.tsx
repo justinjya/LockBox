@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
@@ -6,40 +7,30 @@ import { AppBar } from '@components';
 import { Colors } from 'src/values';
 import { YourLockerCard, Button } from '@components';
 import LogoAlt from 'src/components/svg/LogoAlt';
-
-interface Locker {
-  id: number;
-  name: string;
-  location: string;
-  locked: boolean;
-}
-
-const data = [ // TODO: Finalize data structure then replace
-  { 
-    id: 1,
-    name: 'ID-19',
-    location: 'GKU 3',
-    locked: true
-  },
-  { 
-    id: 2,
-    name: 'ID-08',
-    location: 'Plano',
-    locked: false
-  },
-  { 
-    id: 3,
-    name: 'ID-13',
-    location: 'GKU 1',
-    locked: true
-  },
-] as Array<Locker>;
+import { useContext, useState } from 'react';
+import { collection, doc, getDocs } from 'firebase/firestore';
+import { AuthContext, db } from '@utils';
 
 interface YourLockersScreenProps {
   navigation: any;
 }
 
 export default function YourLockersScreen({ navigation }: YourLockersScreenProps) {
+  const { user } = useContext(AuthContext);
+  const [data, setData] = useState<any[]>([]);
+
+  useFocusEffect(() => {
+    const fetchLockers = async () => {
+      const userRef = doc(db, 'users', user.uid);
+      const lockersRef = collection(userRef, 'lockers');
+      const lockersSnapshot = await getDocs(lockersRef);
+      const lockers = lockersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setData(lockers);
+    };
+
+    fetchLockers();
+  });
+  
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf')
@@ -61,7 +52,10 @@ export default function YourLockersScreen({ navigation }: YourLockersScreenProps
             </View>
             <LogoAlt style={{ alignSelf: 'center', marginBottom: 16 }} />
             <Text style={styles.text}>You Haven't Booked Any Locker Yet!</Text>
-            <Button title="Book Locker" style={{ alignSelf: 'center', marginBottom: 24 }}/> 
+            <Button
+              title="Book Locker"
+              style={{ alignSelf: 'center', marginBottom: 24 }}
+              onPress={() => navigation.navigate('Book')} /> 
           </>
         ) : (
           <>
@@ -72,7 +66,7 @@ export default function YourLockersScreen({ navigation }: YourLockersScreenProps
             <FlatList
               data={data}
               renderItem={({ item }) => (
-                <YourLockerCard locker={item} style={{ marginBottom: 15 }} />
+                <YourLockerCard item={item} style={{ marginBottom: 15 }} />
               )}
             />
             <Button 

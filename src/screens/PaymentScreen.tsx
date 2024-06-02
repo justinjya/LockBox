@@ -1,24 +1,13 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert as NativeAlert, Animated, Dimensions } from 'react-native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { AppBar } from '@components';
 import { Colors } from 'src/values';
-import { Button, Alert, SuccessCircle, ErrorCircle } from '@components';
+import { Button, Alert } from '@components';
 import { SimpleLineIcons } from '@expo/vector-icons';
-
-interface Locker {
-  id: number;
-  name: string;
-  location: string;
-  locked: boolean;
-}
-
-const locker = { 
-  id: 1,
-  name: 'ID-19',
-  location: 'GKU 3',
-  locked: true
-} as Locker;
+import { useEffect, useRef, useState } from 'react';
+import { collection, doc, getDocs } from 'firebase/firestore';
+import { db } from '@utils';
 
 interface PaymentScreenProps {
   route: any;
@@ -26,6 +15,61 @@ interface PaymentScreenProps {
 }
 
 export default function PaymentScreen({ route, navigation }: PaymentScreenProps) {
+  const { id, location } = route.params;
+  const [selectedLocker, setSelectedLocker] = useState<any>(null);
+  const [backPressed, setBackPressed] = useState(false);
+  const alertPosition = useRef(new Animated.Value(Dimensions.get('window').height)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const fetchLockers = async () => {
+      try {
+        const lockersRef = collection(doc(db, 'locations', id), 'lockers');
+        const lockersSnapshot = await getDocs(lockersRef);
+        const lockers = lockersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+        if (lockers.length > 0) {
+          const randomIndex = Math.floor(Math.random() * lockers.length);
+          setSelectedLocker(lockers[randomIndex]);
+        }
+      } catch {
+        NativeAlert.alert('Error', 'An error occurred while fetching lockers');
+      }
+    };
+
+    fetchLockers();
+  }, [id]);
+
+  useEffect(() => {
+    if (backPressed) {
+      Animated.parallel([
+        Animated.timing(alertPosition, {
+          toValue: 0,
+          duration: 350,
+          useNativeDriver: false,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0.5,
+          duration: 150,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(alertPosition, {
+          toValue: Dimensions.get('window').height,
+          duration: 0,
+          useNativeDriver: false,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 0,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [backPressed]);
+
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf'),
@@ -36,72 +80,59 @@ export default function PaymentScreen({ route, navigation }: PaymentScreenProps)
     return null;
   }
 
-  const { id, name, location } = route.params;
+  const handleBackPress = () => {
+    setBackPressed(true);
+  }
+
+  const handleConfirmPress = () => {
+    navigation.pop();
+    navigation.navigate('Pin', { id: selectedLocker.id, name: selectedLocker.name, location: location, state: 'create' })
+  }
+
+  const onAlertYesPress= () => {
+    navigation.goBack();
+  }
+
+  const onAlertNoPress = () => {
+    setBackPressed(false);
+  }
 
   return (
     <>
-      <AppBar profileButtonDisabled />
-      {/* Initial */}
-      <View style={styles.container}>
-        <Text style={styles.title}>Payment</Text>
-        <View style={styles.detailsSection}>
-          <Text style={styles.lockerName}>{name}</Text>
-          <View style={styles.locationSection}>
-            <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
-            <Text style={styles.locationText}>{location}</Text>
-          </View>
-          <View style={styles.qrCodeContainer}>
-            <Text style={{ fontFamily: 'Poppins-Regular' }}>QR Code goes here</Text>
-          </View>
-          <Text style={styles.text}>
-            Before finalizing your purchase, always ensure you've verified the location of the locker
-          </Text>
-          <Button title='Confirm' onPress={() => navigation.navigate('Pin', { name: name, state: 'create' })} />
+      <AppBar profileButtonDisabled onBackPress={handleBackPress} />
+      {selectedLocker === null ? (
+        <View style={styles.container}>
+          <Text style={styles.title}>Payment</Text>
+          <View style={styles.detailsSection} />
         </View>
-      </View>
-
-      {/* <Alert /> */}
-
-      {/* Success */}
-      {/* <View style={styles.container}>
-        <Text style={[styles.title, { color: 'transparent' }]}>Payment</Text>
-        <View style={styles.detailsSection}>
-          <SuccessCircle style={{ marginBottom: 10 }}/>
-          <Text style={{ fontSize: 20, fontFamily: 'Poppins-Bold', color: Colors.orangeDarker }}>Hooray!</Text>
-          <Text style={{ width: '60%', fontSize: 18, fontFamily: 'Segoe UI', textAlign: 'center', marginBottom: 30 }}>Your locker is successfully booked</Text>
-          <Text style={styles.lockerName}>{locker.name}</Text>
-          <View style={[styles.locationSection, { marginBottom: 34 }]}>
-            <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
-            <Text style={styles.locationText}>{locker.location}</Text>
+      ) : (
+        <View style={styles.container}>
+          <Text style={styles.title}>Payment</Text>
+          <View style={styles.detailsSection}>
+            <Text style={styles.lockerName}>{selectedLocker.name}</Text>
+            <View style={styles.locationSection}>
+              <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
+              <Text style={styles.locationText}>{location}</Text>
+            </View>
+            <View style={styles.qrCodeContainer}>
+              <Text style={{ fontFamily: 'Poppins-Regular' }}>QR Code goes here</Text>
+            </View>
+            <Text style={styles.text}>
+              Before finalizing your purchase, always ensure you've verified the location of the locker
+            </Text>
+            <Button title='Confirm' onPress={handleConfirmPress} />
           </View>
-          <Text style={[styles.text, { width: '50%', marginBottom: 24 }]}>
-            Please enter your PIN to unlock the locker
-          </Text>
-          <Button title='Unlock Locker' style={{ marginBottom: 11 }} />
-          <Button title='Home' textStyle={{ color: Colors.orangeDarker }} style={{ backgroundColor: 'transparent', borderWidth: 1, borderColor: Colors.orangeDarker, paddingHorizontal: 87 }} />
         </View>
-      </View> */}
+      )}
 
-      {/* Failed */}
-      {/* <View style={styles.container}>
-        <Text style={[styles.title, { color: 'transparent' }]}>Payment</Text>
-        <View style={styles.detailsSection}>
-          <ErrorCircle style={{ marginBottom: 10 }}/>
-          <Text style={{ fontSize: 20, fontFamily: 'Poppins-Bold', color: Colors.orangeDarker }}>Uh Oh!</Text>
-          <Text style={{ width: '60%', fontSize: 18, fontFamily: 'Segoe UI', textAlign: 'center', marginBottom: 30 }}>something went wrong</Text>
-          <Text style={styles.lockerName}>{locker.name}</Text>
-          <View style={[styles.locationSection, { marginBottom: 34 }]}>
-            <SimpleLineIcons name="location-pin" size={17} color={Colors.orangeDarker} style={{ marginRight: 4 }}/>
-            <Text style={styles.locationText}>{locker.location}</Text>
-          </View>
-          <Text style={[styles.text, { width: '60%', marginBottom: 24 }]}>
-            Please make another attempt to book your locker
-          </Text>
-          <Button title='Try Again' style={{ paddingHorizontal: 76, marginBottom: 11 }} />
-          <Button title='Home' textStyle={{ color: Colors.orangeDarker }} style={{ backgroundColor: 'transparent', borderWidth: 1, borderColor: Colors.orangeDarker, paddingHorizontal: 87 }} />
-        </View>
-      </View> */}
-
+      {backPressed ? (
+        <>
+          <Animated.View style={{ ...styles.backdrop, opacity: backdropOpacity }} />
+          <Animated.View style={{ transform: [{ translateY: alertPosition }] }}>
+            <Alert onYesPress={onAlertYesPress} onNoPress={onAlertNoPress} /> 
+          </Animated.View>
+        </>
+      ) : null}
       <StatusBar style="light" />
     </>
   );
@@ -160,5 +191,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
     marginBottom: 31,
+  },
+  backdrop: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    backgroundColor: 'black',
+    opacity: 0.5
   }
 });

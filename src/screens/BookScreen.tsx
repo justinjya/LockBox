@@ -5,6 +5,9 @@ import { StatusBar } from 'expo-status-bar';
 import { AppBar } from '@components';
 import { Colors } from 'src/values';
 import { BookALockerCard } from '@components';
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@utils';
 
 const data = [
   {
@@ -55,12 +58,28 @@ const data = [
   // },
 ]
 
-// TO-DO - Add pagination
 export default function BookScreen() {
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf')
   });
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  const [locations, setLocations] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const locationsRef = collection(db, 'locations');
+      const locationsSnapshot = await getDocs(locationsRef);
+      const locationsList = locationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLocations(locationsList);
+    };
+
+    fetchLocations();
+  }, []);
 
   if (!fontsLoaded && !fontError) {
     return null;
@@ -72,7 +91,7 @@ export default function BookScreen() {
       <View style={styles.container}>
         <Text style={styles.title}>Choose Your Location</Text>
         <FlatList
-          data={data}
+          data={locations}
           renderItem={({ item }) => (
             <BookALockerCard item={item} style={{ marginBottom: 15 }} />
           )}

@@ -4,15 +4,22 @@ import { useFonts } from 'expo-font';
 import { Colors } from "src/values";
 import { AppBar, CredentialInput, Button } from '@components';
 import { getAuth, signOut } from 'firebase/auth';
+import { AuthContext, db } from '@utils';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export default function ProfileScreen() {
-  const [name, setName] = useState('Kartika Sari');
-  const [number, setNumber] = useState('081212336163');
-  const [email, setEmail] = useState('kartik@mail.com');
+  const { 
+    user,
+    name: sessionName,
+    email: sessionEmail,
+    phoneNumber: sessionPhoneNumber,
+  } = useContext(AuthContext);
+  const [name, setName] = useState(sessionName || '');
+  const [phoneNumber, setPhoneNumber] = useState(sessionPhoneNumber || '');
+  const [email] = useState(sessionEmail || '');
 
-  const [initiallName, setinitiallName] = useState(name);
-  const [initiallNumber, setinitiallNumber] = useState(number);
-  const [initiallEmail, setinitiallEmail] = useState(email);
+  const [initialName, setInitialName] = useState(name);
+  const [initialPhoneNumber, setInitialPhoneNumber] = useState(phoneNumber);
 
   const [isChanged, setIsChanged] = useState(false);
 
@@ -24,6 +31,28 @@ export default function ProfileScreen() {
   if (!fontsLoaded && !fontError) {
       return null;
   };
+
+  const handleSavePress = async () => {
+    setInitialName(name);
+    setInitialPhoneNumber(phoneNumber);
+
+    try {
+      const docRef = doc(db, 'users', user.uid);
+      await updateDoc(docRef, {
+        name: name,
+        phoneNumber: phoneNumber,
+      });
+      setIsChanged(false);
+    } catch (error: any) {
+      Alert.alert('Save Failed', 'Something went wrong. Please try again.');
+    }
+  }
+
+  const handleDiscardPress = () => {
+    setName(initialName);
+    setPhoneNumber(initialPhoneNumber);
+    setIsChanged(false);
+  }
 
   const handleLogOutPress = () => {
     const auth = getAuth();
@@ -37,52 +66,40 @@ export default function ProfileScreen() {
     <>
       <AppBar title='Profile' profileButtonDisabled />
       <View style={styles.container}>
-          <Text style={styles.label}>Name</Text>
-          <CredentialInput 
-            value={name} 
-            onChangeText={(text) => { setName(text); setIsChanged(true); }} 
-            style={styles.inputField} 
-          />
-          <Text style={styles.label}>Number</Text>
-          <CredentialInput 
-            value={number} 
-            onChangeText={(text) => { setNumber(text); setIsChanged(true); }} 
-            style={styles.inputField} 
-          />
-          <Text style={styles.label}>Email</Text>
-          <CredentialInput 
-            value={email} 
-            onChangeText={(text) => { setEmail(text); setIsChanged(true); }} 
-            style={styles.inputField} 
-          />
-          <Button 
-            title='Save' 
-            style={[styles.saveButton, !isChanged && styles.disabledButton]} 
-            disabled={!isChanged}
-            onPress={() => {
-                setinitiallName(name);
-                setinitiallNumber(number);
-                setinitiallEmail(email);
-                setIsChanged(false);
-            }}
-          />
-          <Button 
-            title='Discard' 
-            style={[styles.discardButton, !isChanged && styles.disabledButton]} 
-            textStyle={[styles.discardButtonText, !isChanged && styles.disabledButtonText]}
-            disabled={!isChanged}
-            onPress={() => {
-                setName(initiallName);
-                setNumber(initiallNumber);
-                setEmail(initiallEmail);
-                setIsChanged(false);
-            }}
-          />
-          <Button
-            title='Log Out'
-            style={styles.logoutButton}
-            textStyle={styles.logoutButtonText}
-            onPress={handleLogOutPress}/>
+        <Text style={styles.label}>Name</Text>
+        <CredentialInput 
+          value={name} 
+          onChangeText={(text) => { setName(text); setIsChanged(true); }} 
+          style={styles.inputField} 
+        />
+        <Text style={styles.label}>Number</Text>
+        <CredentialInput 
+          value={phoneNumber} 
+          onChangeText={(text) => { setPhoneNumber(text); setIsChanged(true); }} 
+          style={styles.inputField} 
+        />
+        <Text style={styles.label}>Email</Text>
+        <View style={[styles.inputField, { width: '100%', height: 40, justifyContent: 'center' }]}>
+          <Text style={{ fontFamily: 'Segoe UI Bold', color: Colors.anotherGrayDarker }}>{email}</Text>
+        </View>
+        <Button 
+          title='Save' 
+          style={[styles.saveButton, !isChanged && styles.disabledButton]} 
+          disabled={!isChanged}
+          onPress={handleSavePress}
+        />
+        <Button 
+          title='Discard' 
+          style={[styles.discardButton, !isChanged && styles.disabledButton]} 
+          textStyle={[styles.discardButtonText, !isChanged && styles.disabledButtonText]}
+          disabled={!isChanged}
+          onPress={handleDiscardPress}
+        />
+        <Button
+          title='Log Out'
+          style={styles.logoutButton}
+          textStyle={styles.logoutButtonText}
+          onPress={handleLogOutPress}/>
       </View>
     </>
   );

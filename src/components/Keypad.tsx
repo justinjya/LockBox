@@ -1,9 +1,9 @@
-import { Text, StyleSheet, FlatList, TouchableOpacity, View } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { Colors } from 'src/values';
 
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, -1];
+const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, -2, 0, -1];
 
 interface KeypadProps {
   value: string;
@@ -32,18 +32,7 @@ export default function Keypad({ value, setValue, style }: KeypadProps) {
     <>
       <View style={[styles.container, style]}>
         {numbers.map((item, index) => (
-          item === -1 ? (
-            <TouchableOpacity 
-              key={index}
-              style={[styles.circle, { backgroundColor: 'transparent' }]}
-              onPress={() => handlePress(item)}
-            >
-              <Ionicons
-                name={'backspace-outline'}
-                size={32}
-                color={Colors.textLight} />
-            </TouchableOpacity>
-          ) : (
+          item >= 0 ? (
             <TouchableOpacity 
               key={index}
               style={styles.circle}
@@ -51,6 +40,21 @@ export default function Keypad({ value, setValue, style }: KeypadProps) {
             >
               <Text style={styles.number}>{item}</Text>
             </TouchableOpacity>
+          ) : (
+            item === -1 ? (
+              <TouchableOpacity 
+                key={index}
+                style={[styles.circle, { backgroundColor: 'transparent' }]}
+                onPress={() => handlePress(item)}
+              >
+                <Ionicons
+                  name={'backspace-outline'}
+                  size={32}
+                  color={Colors.textLight} />
+              </TouchableOpacity>
+            ) : (
+              <View key={index} style={[styles.circle, { backgroundColor: 'transparent' }]} />
+            )
           )
         ))}
       </View>
@@ -60,10 +64,9 @@ export default function Keypad({ value, setValue, style }: KeypadProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: '76%',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-end'
+    justifyContent: 'center',
   },
   circle: {
     backgroundColor: Colors.anotherOrange,
