@@ -22,7 +22,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FEFEFE"
-      }
+      },
+      "package": "com.justin.LockBox"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -42,6 +43,11 @@
           ]
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "287137ae-878d-4ca2-870c-9adfc73144f1"
+      }
+    }
   }
 }

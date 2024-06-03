@@ -1,0 +1,36 @@
+{
+  "cli": {
+    "version": ">= 9.0.7"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyCSGg-FFM198R3KdlhgeQsZYGAIOOHYgWs",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "lockbox-baba1.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "lockbox-baba1",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "lockbox-baba1.appspot.com",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "245617014346",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:245617014346:web:949d2587e92b37b7d958b3",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-BDLGC26T3N"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyCSGg-FFM198R3KdlhgeQsZYGAIOOHYgWs",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "lockbox-baba1.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "lockbox-baba1",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "lockbox-baba1.appspot.com",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "245617014346",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:245617014346:web:949d2587e92b37b7d958b3",
+        "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-BDLGC26T3N"
+      }
+    },
+    "production": {}
+  },
+  "submit": {
+    "production": {}
+  }
+}
