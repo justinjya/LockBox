@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Text, StyleSheet, View, Alert } from "react-native";
+import { Text, StyleSheet, View, Alert, Dimensions } from "react-native";
 import { useFonts } from 'expo-font';
 import { Colors } from "src/values";
 import { AppBar, CredentialInput, Button } from '@components';
@@ -105,10 +105,14 @@ export default function ProfileScreen() {
   );
 };
 
+const windowWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
+    width: windowWidth > 600 ? 390 : '100%',
+    alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },

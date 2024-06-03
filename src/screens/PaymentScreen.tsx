@@ -138,9 +138,13 @@ export default function PaymentScreen({ route, navigation }: PaymentScreenProps)
   );
 }
 
+const windowWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: windowWidth > 600 ? 390 : '100%',
+    alignSelf: 'center',
     padding: 24,
   },
   title: {

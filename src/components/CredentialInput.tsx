@@ -1,4 +1,4 @@
-import { TextInput, StyleSheet } from 'react-native';
+import { TextInput, StyleSheet, Platform } from 'react-native';
 import { Colors } from 'src/values';
 
 interface CredentialInputProps {
@@ -29,5 +29,11 @@ const styles = StyleSheet.create({
     color: Colors.graySlightlyDarker,
     borderColor: Colors.grayDarker,
     borderBottomWidth: 1,
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+        boxShadow: '0px -1px 0px 0px #D2D2D2 inset'
+      },
+    }),
   },
 });

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { StackActions } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
@@ -16,6 +16,9 @@ interface PaymentScreenProps {
 }
 
 export default function PaymentConfirmScreen({ route, navigation }: PaymentScreenProps) {
+  const { id, name, location, pin ,state } = route.params;
+  const { user } = useContext(AuthContext);
+  
   const [fontsLoaded, fontError] = useFonts({
     'Poppins-Regular': require('@fonts/Poppins-Regular.ttf'),
     'Poppins-Bold': require('@fonts/Poppins-Bold.ttf'),
@@ -25,9 +28,6 @@ export default function PaymentConfirmScreen({ route, navigation }: PaymentScree
   if (!fontsLoaded && !fontError) {
     return null;
   }
-
-  const { id, name, location, pin ,state } = route.params;
-  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     if (state === 'success') {
@@ -165,9 +165,13 @@ export default function PaymentConfirmScreen({ route, navigation }: PaymentScree
   );
 }
 
+const windowWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: windowWidth > 600 ? 390 : '100%',
+    alignSelf: 'center',
     padding: 24,
   },
   title: {

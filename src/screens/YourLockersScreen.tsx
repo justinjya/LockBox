@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
@@ -81,13 +81,13 @@ export default function YourLockersScreen({ navigation }: YourLockersScreenProps
   );
 }
 
+const windowWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-  },
-  containerAlt: {
-    flex: 1,
+    width: windowWidth > 600 ? 390 : '100%',
+    alignSelf: 'center',
     padding: 24,
   },
   title: {
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   titleNumber: {
     color: Colors.textDark,
     fontSize: 20,
-    fontFamily: 'Poppons-Regular',
+    fontFamily: 'Poppins-Regular',
   },
   text: {
     color: Colors.grayDarker,

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -164,9 +164,13 @@ export default function PinScreen({ route, navigation }: PinScreenProps) {
   )
 }
 
+const windowWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: windowWidth > 600 ? 390 : '100%',
+    alignSelf: 'center',
     alignItems: 'center',
     paddingHorizontal: 24
   },

@@ -17,7 +17,6 @@ export default function Modal({ children, style }: ModalProps) {
 
 const styles = StyleSheet.create({
   modal: {
-    width: 310,
     backgroundColor: Colors.white,
     borderRadius: 20,
     padding: 30,

@@ -22,6 +22,16 @@ export default function BookALockerCard({ item, style }: CardProps) {
 
   const navigation: any = useNavigation();
 
+  const unavailable = item.availableLockers === 0;
+
+  const handleBookPress = () => {
+    if (unavailable) {
+      return;
+    }
+
+    navigation.navigate('Payment', { id: item.id, location: item.name });
+  }
+
   return (
     <View style={[styles.card, style]}>
       <View style={styles.lockerDetailsSection}>
@@ -35,8 +45,9 @@ export default function BookALockerCard({ item, style }: CardProps) {
       </View>
       <Button
         title="Book"
-        style={styles.bookButton}
-        onPress={() => navigation.navigate('Payment', { id: item.id, location: item.name })} />
+        style={[styles.bookButton, { opacity: unavailable ? 0.5 : 1 }]}
+        disabled={unavailable}
+        onPress={handleBookPress} />
     </View>
   )
 }
