@@ -160,7 +160,7 @@ export default function PaymentConfirmScreen({ route, navigation }: PaymentScree
           </>
         ) : null}
       </View>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </>
   );
 }
